@@ -1,18 +1,10 @@
+import util
 import config
 from sklearn.svm import LinearSVC
 from features import SentenceLengthFeature
 from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.feature_extraction.text import TfidfVectorizer
-
-
-def load_data(filehandle):
-    X, Y = [], []
-    for line in filehandle.readlines():
-        x, y = line.split('\t')
-        X.append(x.strip())
-        Y.append(y.strip())
-    return X, Y
 
 
 def pipeline_config(clf):
@@ -29,8 +21,9 @@ def pipeline_config(clf):
 def run():
     train_handle = open(config.TRAIN_FILE, 'r')
     dev_handle = open(config.TEST_FILE, 'r')
-    X, Y = load_data(train_handle)
-    X_dev, Y_dev = load_data(dev_handle)
+    X, Y = util.load_data(train_handle)
+    X, Y = util.limit_data(X, Y, 100000, balance=True)
+    X_dev, Y_dev = util.load_data(dev_handle)
 
     clf = LinearSVC()
     pipeline = pipeline_config(clf)
