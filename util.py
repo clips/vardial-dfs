@@ -1,7 +1,7 @@
 from sklearn.utils import shuffle
 
 
-def limit_data(X, Y, max_size=None, balance=True):
+def random_sample_data(X, Y, max_size=None, balance=True):
     X, Y = shuffle(X, Y)
     if not max_size or max_size > len(X):
         return X, Y
