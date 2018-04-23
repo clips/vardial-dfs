@@ -25,3 +25,11 @@ def load_data(filehandle):
         X.append(x.strip())
         Y.append(y.strip())
     return X, Y
+
+
+def save_data(X, Y, outfile):
+    for x in range(len(X)):
+        if Y:
+            outfile.write(X[x] + '\t' + Y[x] + '\n')
+        else:
+            outfile.write(X[x] + '\t' + ' ' + '\n')
