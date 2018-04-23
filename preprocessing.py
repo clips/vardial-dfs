@@ -8,13 +8,13 @@ class POSTagger(BaseEstimator, TransformerMixin):
 
     def load_saved_pos(self):
         train_data, test_data = [], []
-        prep_train_path = 'pos_' + config.TRAIN_FILE
-        prep_test_path = 'pos_' + config.TEST_FILE
+        prep_train_path = os.path.splitext(config.TRAIN_FILE)[0] + '.pos'
+        prep_test_path = os.path.splitext(config.TEST_FILE)[0] + '.pos'
 
         if os.path.isfile(prep_train_path):
-            self.train_data, _ = util.load_data(open(prep_train_path, 'r'))
+            train_data, _ = util.load_data(open(prep_train_path, 'r'))
         if os.path.isfile(prep_test_path):
-            self.test_data, _ = util.load_data(open(prep_test_path, 'r'))
+            test_data, _ = util.load_data(open(prep_test_path, 'r'))
 
         return train_data, test_data
 
