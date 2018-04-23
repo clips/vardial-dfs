@@ -1,7 +1,7 @@
 import util
 import config
 from sklearn.svm import LinearSVC
-from features import SentenceLengthFeature, POSVectorizer
+from preprocessing import POSTagger
 from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -10,9 +10,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 def pipeline_config(clf):
     pipeline = Pipeline([
         ('features', FeatureUnion([
-            ('wordvec', TfidfVectorizer(ngram_range=(1, 3))),
-            ('posvec', POSVectorizer(ngram_range=(2, 3))),
-            ('lexicon', SentenceLengthFeature()),
+            ('word_ngrams', TfidfVectorizer(ngram_range=(2, 4))),
+            ('pos_ngrams', Pipeline([
+                ('postag', POSTagger()),
+                ('vectorizer', TfidfVectorizer(ngram_range=(3, 3), tokenizer=lambda x: x.split()))
+            ])),
         ])),
         ('clf', clf)])
 
@@ -23,7 +25,6 @@ def run():
     train_handle = open(config.TRAIN_FILE, 'r')
     dev_handle = open(config.TEST_FILE, 'r')
     X, Y = util.load_data(train_handle)
-    X, Y = util.random_sample_data(X, Y, 10000, balance=True)
     X_dev, Y_dev = util.load_data(dev_handle)
 
     clf = LinearSVC()
