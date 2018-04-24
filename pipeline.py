@@ -1,7 +1,7 @@
 import util
 import config
 from sklearn.svm import LinearSVC
-from preprocessing import POSTagger
+from preprocessing import POSTagger, FunctionWords
 from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -15,6 +15,10 @@ def pipeline_config(clf):
                 ('postag', POSTagger()),
                 ('vectorizer', TfidfVectorizer(ngram_range=(3, 3), tokenizer=lambda x: x.split()))
             ])),
+            ('function_ngrams', Pipeline([
+                ('postag', FunctionWords()),
+                ('vectorizer', TfidfVectorizer(ngram_range=(1, 3)))
+            ])),
         ])),
         ('clf', clf)])
 
@@ -23,16 +27,16 @@ def pipeline_config(clf):
 
 def run():
     train_handle = open(config.TRAIN_FILE, 'r')
-    test_handle = open(config.TEST_FILE, 'r')
-    X, Y = util.load_data(train_handle)
-    X_test, Y_test = util.load_data(test_handle)
+    dev_handle = open(config.DEV_FILE, 'r')
+    X, Y = util.load_data_and_labels(train_handle)
+    X_dev, Y_dev = util.load_data_and_labels(dev_handle)
 
     clf = LinearSVC()
     pipeline = pipeline_config(clf)
 
     pipeline.fit(X, Y)
-    Y_pred = pipeline.predict(X_test)
-    score = accuracy_score(Y_test, Y_pred)
+    Y_pred = pipeline.predict(X_dev)
+    score = accuracy_score(Y_dev, Y_pred)
 
     print("Accuracy: {}".format(score))
 

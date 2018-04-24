@@ -19,6 +19,10 @@ def random_sample_data(X, Y, max_size=None, balance=True):
 
 
 def load_data(filehandle):
+    return filehandle.read().splitlines()
+
+
+def load_data_and_labels(filehandle):
     X, Y = [], []
     for line in filehandle.readlines():
         x, y = line.split('\t')
@@ -27,9 +31,9 @@ def load_data(filehandle):
     return X, Y
 
 
-def save_data(X, Y, outfile):
-    for x in range(len(X)):
-        if Y:
-            outfile.write(X[x] + '\t' + Y[x] + '\n')
+def save_data(outfile, data, labels=None):
+    for i in range(len(data)):
+        if labels:
+            outfile.write(data[i] + '\t' + labels[i] + '\n')
         else:
-            outfile.write(X[x] + '\t' + ' ' + '\n')
+            outfile.write(data[i] + '\n')
