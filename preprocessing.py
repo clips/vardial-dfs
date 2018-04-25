@@ -40,8 +40,11 @@ def function_sents(X):
 
 class Preprocessor(BaseEstimator, TransformerMixin):
     def __init__(self):
-        self.extension = '.txt'
+        self.extension = self.get_extension()
         self.train_data, self.test_data = self.load_data()
+
+    def get_extension(self):
+        return '.txt'
 
     def load_data(self):
         train_data, test_data = [], []
@@ -70,9 +73,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
 class Lemmas(Preprocessor):
 
-    def __init__(self):
-        super(Lemmas, self).__init__()
-        self.extension = '.lem'
+    def get_extension(self):
+        return '.lem'
 
     def process_data(self, X):
         return lemmatize_sents(X)
@@ -80,19 +82,17 @@ class Lemmas(Preprocessor):
 
 class POSTagger(Preprocessor):
 
-    def __init__(self):
-        super(POSTagger, self).__init__()
-        self.extension = '.pos'
+    def get_extension(self):
+        return '.pos'
 
     def process_data(self, X):
         return postag_sents(X)
 
 
-class FunctionWords(BaseEstimator, TransformerMixin):
+class FunctionWords(Preprocessor):
 
-    def __init__(self):
-        super(FunctionWords, self).__init__()
-        self.extension = '.fnc'
+    def get_extension(self):
+        return '.fnc'
 
     def process_data(self, X):
         return function_sents(X)
