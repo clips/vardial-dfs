@@ -21,14 +21,14 @@ def base_classifier(features):
 
 def run():
     train_handle = open(config.TRAIN_FILE, 'r')
-    dev_handle = open(config.DEV_FILE, 'r')
+    test_handle = open(config.TEST_FILE, 'r')
     X, Y = util.load_data_and_labels(train_handle)
-    X_dev, Y_dev = util.load_data_and_labels(dev_handle)
+    X_test = util.load_data(test_handle)
 
     feature_list = [
         TfidfVectorizer(ngram_range=(1, 3)),
         Pipeline([('postag', POSTagger()),
-                  ('vectorizer', TfidfVectorizer(ngram_range=(3, 6), tokenizer=lambda x: x.split()))]),
+                  ('vectorizer', TfidfVectorizer(ngram_range=(2, 5), tokenizer=lambda x: x.split()))]),
         Pipeline([('lemmas', Lemmas()),
                   ('vectorizer', TfidfVectorizer(ngram_range=(1, 2)))]),
         Pipeline([('functionwords', FunctionWords()),
@@ -36,20 +36,18 @@ def run():
     ]
 
     meta_train = np.array([]).reshape(len(X), 0)
-    meta_dev = np.array([]).reshape(len(X_dev), 0)
+    meta_test = np.array([]).reshape(len(X_test), 0)
 
     for features in feature_list:
         classifier = base_classifier(features)
         classifier.fit(X, Y)
         meta_train = np.column_stack([meta_train, classifier.predict_proba(X)[:,0]])
-        meta_dev = np.column_stack([meta_dev, classifier.predict_proba(X_dev)[:,0]])
+        meta_test = np.column_stack([meta_test, classifier.predict_proba(X_test)[:,0]])
 
     meta_classifier = LinearDiscriminantAnalysis()
     meta_classifier.fit(meta_train, Y)
-    Y_pred = meta_classifier.predict(meta_dev)
-    score = accuracy_score(Y_dev, Y_pred)
-
-    print("Accuracy: {}".format(score))
+    test_Y = meta_classifier.predict(meta_test)
+    util.save_labels(open('data/test.labels', 'w'), test_Y)
 
 
 run()

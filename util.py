@@ -37,3 +37,10 @@ def save_data(outfile, data, labels=None):
             outfile.write(data[i] + '\t' + labels[i] + '\n')
         else:
             outfile.write(data[i] + '\n')
+    outfile.close()
+
+
+def save_labels(outfile, pred):
+    for label in pred:
+        outfile.write(label + '\n')
+    outfile.close()
