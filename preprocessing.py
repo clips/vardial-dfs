@@ -49,7 +49,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
     def load_data(self):
         train_data, test_data = [], []
         prep_train_path = os.path.splitext(config.TRAIN_FILE)[0] + self.extension
-        prep_test_path = os.path.splitext(config.DEV_FILE)[0] + self.extension
+        prep_test_path = os.path.splitext(config.TEST_FILE)[0] + self.extension
 
         if os.path.isfile(prep_train_path):
             train_data = util.load_data(open(prep_train_path, 'r'))
