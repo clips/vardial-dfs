@@ -1,9 +1,9 @@
-import util
-import config
 import numpy as np
+from vardialdfs import util
+from vardialdfs import config
 from sklearn.svm import LinearSVC
-from preprocessing import POSTagger
 from sklearn.metrics import f1_score
+from vardialdfs.preprocessing import POSTagger
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -17,8 +17,7 @@ def base_classifier(clf, features):
     return classifier
 
 
-def run():
-    meta_method = None
+def run_pipeline(meta_method):
     train_handle = open(config.TRAIN_FILE, 'r')
     test_handle = open(config.TEST_FILE, 'r')
     X_train, Y_train = util.load_data_and_labels(train_handle)
@@ -71,6 +70,3 @@ def run():
 
     f_macro = f1_score(Y_test, Y_pred, average='macro')
     print(f_macro)
-
-
-run()

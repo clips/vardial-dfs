@@ -1,6 +1,6 @@
 import os
-import util
-import config
+from vardialdfs import util
+from vardialdfs import config
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
