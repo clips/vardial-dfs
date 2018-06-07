@@ -1,41 +1,8 @@
 import os
+import frog
 from vardialdfs import util
 from vardialdfs import config
 from sklearn.base import BaseEstimator, TransformerMixin
-
-
-def lemmatize_sents(X):
-    import frog
-    frogg = frog.Frog(frog.FrogOptions(morph=False, mwu=False, chunking=False, ner=False))
-    new_X = [' '.join([word['lemma'] for word in frogg.process(x)]) for x in X]
-    return new_X
-
-
-def postag_sents(X):
-    import frog
-    frogg = frog.Frog(frog.FrogOptions(lemma=False, morph=False))
-    new_X = [' '.join([word['pos'] for word in frogg.process(x)]) for x in X]
-    return new_X
-
-
-def function_sents(X):
-    import frog
-    frogg = frog.Frog(frog.FrogOptions(morph=False, mwu=False, chunking=False))
-    aux = open('data/ww.txt', 'r').read().splitlines()
-    new_X = []
-    for x in X:
-        new_x = []
-        output = frogg.process(x)
-        for word in output:
-            if word['pos'][:3] not in ['LID', 'VNW', 'VG(', 'WW(']:
-                continue
-            if word['pos'][:2] == 'WW':
-                if word['lemma'] in aux:
-                    new_x.append(word['lemma'])
-                continue
-            new_x.append(word['text'].lower())
-        new_X.append(new_x)
-    return new_X
 
 
 class Preprocessor(BaseEstimator, TransformerMixin):
@@ -46,15 +13,23 @@ class Preprocessor(BaseEstimator, TransformerMixin):
     def get_extension(self):
         return '.txt'
 
+    def get_train_path(self):
+        train_path = os.path.splitext(config.TRAIN_FILE)[0] + self.extension
+        return train_path
+
+    def get_test_path(self):
+        test_path = os.path.splitext(config.TEST_FILE)[0] + self.extension
+        return test_path
+
     def load_data(self):
         train_data, test_data = [], []
-        prep_train_path = os.path.splitext(config.TRAIN_FILE)[0] + self.extension
-        prep_test_path = os.path.splitext(config.TEST_FILE)[0] + self.extension
+        train_path = self.get_train_path()
+        test_path = self.get_test_path()
 
-        if os.path.isfile(prep_train_path):
-            train_data = util.load_data(open(prep_train_path, 'r'))
-        if os.path.isfile(prep_test_path):
-            test_data = util.load_data(open(prep_test_path, 'r'))
+        if os.path.isfile(train_path):
+            train_data = util.load_data(open(train_path, 'r'))
+        if os.path.isfile(test_path):
+            test_data = util.load_data(open(test_path, 'r'))
         return train_data, test_data
 
     def process_data(self, X):
@@ -77,7 +52,9 @@ class Lemmas(Preprocessor):
         return '.lem'
 
     def process_data(self, X):
-        return lemmatize_sents(X)
+        frogg = frog.Frog(frog.FrogOptions(morph=False, mwu=False, chunking=False, ner=False))
+        new_X = [' '.join([word['lemma'] for word in frogg.process(x)]) for x in X]
+        return new_X
 
 
 class POSTagger(Preprocessor):
@@ -86,7 +63,10 @@ class POSTagger(Preprocessor):
         return '.pos'
 
     def process_data(self, X):
-        return postag_sents(X)
+        import frog
+        frogg = frog.Frog(frog.FrogOptions(lemma=False, morph=False))
+        new_X = [' '.join([word['pos'] for word in frogg.process(x)]) for x in X]
+        return new_X
 
 
 class FunctionWords(Preprocessor):
@@ -95,4 +75,19 @@ class FunctionWords(Preprocessor):
         return '.fnc'
 
     def process_data(self, X):
-        return function_sents(X)
+        frogg = frog.Frog(frog.FrogOptions(morph=False, mwu=False, chunking=False))
+        aux = open(config.VERB_FILE, 'r').read().splitlines()
+        new_X = []
+        for x in X:
+            new_x = []
+            output = frogg.process(x)
+            for word in output:
+                if word['pos'][:3] not in ['LID', 'VNW', 'VG(', 'WW(']:
+                    continue
+                if word['pos'][:2] == 'WW':
+                    if word['lemma'] in aux:
+                        new_x.append(word['lemma'])
+                    continue
+                new_x.append(word['text'].lower())
+            new_X.append(new_x)
+        return new_X
