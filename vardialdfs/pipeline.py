@@ -20,8 +20,9 @@ def base_classifier(clf, features):
 def run_pipeline(meta_method):
     train_handle = open(config.TRAIN_FILE, 'r')
     test_handle = open(config.TEST_FILE, 'r')
-    X_train, Y_train = util.load_data_and_labels(train_handle)
-    X_test, Y_test = util.load_data_and_labels(test_handle)
+    X_train, Y_train = util.load_data(train_handle)
+    X_test, Y_test = util.load_data(test_handle)
+    X_train, Y_train = util.random_sample_data(X_train, Y_train, 100000)
 
     feature_list = [
         ('word_ngrams', TfidfVectorizer(ngram_range=(1, 3))),

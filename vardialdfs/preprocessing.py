@@ -6,6 +6,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class Preprocessor(BaseEstimator, TransformerMixin):
+
+    """This is a parent class for preprocessing data in the pipeline."""
+
     def __init__(self):
         self.extension = self.get_extension()
         self.train_data, self.test_data = self.load_data()
@@ -22,14 +25,15 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         return test_path
 
     def load_data(self):
+        """Load preprocessed data if available, otherwise do preprocessing."""
         train_data, test_data = [], []
         train_path = self.get_train_path()
         test_path = self.get_test_path()
 
         if os.path.isfile(train_path):
-            train_data = util.load_data(open(train_path, 'r'))
+            train_data, _ = util.load_data(open(train_path, 'r'))
         if os.path.isfile(test_path):
-            test_data = util.load_data(open(test_path, 'r'))
+            test_data, _ = util.load_data(open(test_path, 'r'))
         return train_data, test_data
 
     def process_data(self, X):
@@ -75,6 +79,7 @@ class FunctionWords(Preprocessor):
         return '.fnc'
 
     def process_data(self, X):
+        """Filter data. Leave only articles, pronouns, conjunctions and auxiliary verbs."""
         frogg = frog.Frog(frog.FrogOptions(morph=False, mwu=False, chunking=False))
         aux = open(config.VERB_FILE, 'r').read().splitlines()
         new_X = []
