@@ -22,7 +22,6 @@ def run_pipeline(meta_method):
     test_handle = open(config.TEST_FILE, 'r')
     X_train, Y_train = util.load_data(train_handle)
     X_test, Y_test = util.load_data(test_handle)
-    X_train, Y_train = util.random_sample_data(X_train, Y_train, 100000)
 
     feature_list = [
         ('word_ngrams', TfidfVectorizer(ngram_range=(1, 3))),
